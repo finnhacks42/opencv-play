@@ -7,7 +7,7 @@ Created on Sun Jan 29 20:44:27 2017
 
 import cv2
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 while(True):
 
     _, frame = cap.read()

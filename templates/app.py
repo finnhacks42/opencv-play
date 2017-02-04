@@ -19,9 +19,15 @@ import cv2
 # TODO consider making this a utility class that works for images or video    
 
 class App(object):
-    def __init__(self, video_src,window_name = "frame",roi_name = "roi"):
-        self.cap = cv2.VideoCapture(video_src)
-        ret, self.frame = self.cap.read()
+    def __init__(self,input_source,window_name = "frame",roi_name = "roi"):
+        if isinstance(input_source,str):
+            self.video = False
+            self.img = cv2.imread(input_source,cv2.IMREAD_COLOR)
+
+        else:
+            self.video = True
+            self.cap = cv2.VideoCapture(video_src)
+#        ret, self.frame = self.cap.read()
         self.window_name = window_name
         self.roi_name = roi_name
         cv2.namedWindow(self.window_name)
@@ -29,6 +35,13 @@ class App(object):
 
         self.selection = None
         self.drag_start = None
+
+    def read_frame(self):
+        if self.video:
+            return self.cap.read()
+        else:
+            return self.img
+        
 
 
     def onmouse(self, event, x, y, flags, param):
@@ -61,13 +74,30 @@ class App(object):
         if self.selection:
             xmin,ymin,xmax,ymax = self.selection
             return img[ymin:ymax, xmin:xmax]
+
+        hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+
+    
+ 
+
+ 
+### Now convolute with circular disc
+
+## 
+### threshold and binary AND
+##ret,thresh = cv2.threshold(dst,50,255,0)
+##thresh = cv2.merge((thresh,thresh,thresh))
+##res = cv2.bitwise_and(target,thresh)
+## 
+##res = np.vstack((target,thresh,res))
+##cv2.imwrite('res.jpg',res)
         
             
     def run(self):
         """ Runs a loop, repeatedly getting video/images and displaying them and any selected region of interest """
         
         while True:
-            ret, self.frame = self.cap.read()
+            self.frame = self.read_frame()
             vis = self.frame.copy()
             
             # draw the a rectangle around the roi
@@ -75,12 +105,35 @@ class App(object):
             
             
             # obtain the roi and display it in a new window 
-            roi = self.get_roi(vis)
+            roi = self.get_roi(self.frame)
             if roi is not None: 
                 height = roi.shape[0]
                 width = roi.shape[1]
                 if height > 0 and width > 0:
                     cv2.imshow(self.roi_name,roi)
+
+                    # calculating object histogram
+                    hsv = cv2.cvtColor(roi,cv2.COLOR_BGR2HSV)
+                    roihist = cv2.calcHist(images = [hsv],channels = [0, 1,2], mask = None, histSize = [180, 256,180], ranges = [0, 180, 0, 256,0,180] )
+                    hsvt = cv2.cvtColor(self.frame,cv2.COLOR_BGR2HSV)
+ 
+                    # normalize histogram and apply backprojection
+                    cv2.normalize(roihist,roihist,0,255,cv2.NORM_MINMAX)
+                    dst = cv2.calcBackProject([hsvt],[0,1,2],roihist,[0,180,0,256,0,180],1)
+                    #disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+                    #cv2.filter2D(dst,-1,disc,dst)
+                    cv2.imshow("diff",dst)
+
+                    target = self.frame.copy()
+
+                    # threshold and binary AND
+                    #ret,thresh2 = cv2.threshold(img,127,255,cv2.THRESH_BINARY_INV)
+                    ret,thresh = cv2.threshold(dst,1,255,cv2.THRESH_BINARY)
+                    thresh = cv2.merge((thresh,thresh,thresh))
+                    res = cv2.bitwise_and(target,thresh)
+
+                    #res = np.dstack((target,thresh,res))
+                    cv2.imshow('res',thresh)
                
             
             # show the full image
