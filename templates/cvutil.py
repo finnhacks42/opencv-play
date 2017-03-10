@@ -44,7 +44,7 @@ def plot_histogram(ax,img,channels,title,legend_loc = "upper left"):
 def make_hsv(height=179):
     """ 
     create an image with hue in the background.
-    returns: (hsv,rgb)
+    returns: hsv image
     """
     hsv = np.zeros((height,179,3),dtype=np.uint8)
     hsv[:,:,0] = np.arange(0,179)
@@ -63,7 +63,7 @@ def plot_hsv_hist(ax,hsv):
     hist = 180*hist/max(hist)
     ax.set_xlim(0,180)
     ax.set_title("HSV")
-    _,background = make_hsv()
+    background = cv2.cvtColor(make_hsv(),cv2.COLOR_HSV2RGB)
     ax.tick_params(axis="y",which="both",left="off",labelleft="off")    
     ax.imshow(background,extent=[0,180,0,180])
     ax.plot(hist,color = "black",lw=2)  

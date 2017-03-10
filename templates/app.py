@@ -15,8 +15,7 @@ if PY3:
 import numpy as np
 import cv2
 
-
-# TODO consider making this a utility class that works for images or video    
+   
 
 class App(object):
     def __init__(self,input_source,window_name = "frame",roi_name = "roi"):
@@ -38,7 +37,8 @@ class App(object):
 
     def read_frame(self):
         if self.video:
-            return self.cap.read()
+            _,frame = self.cap.read()
+            return frame
         else:
             return self.img
         
@@ -75,24 +75,7 @@ class App(object):
             xmin,ymin,xmax,ymax = self.selection
             return img[ymin:ymax, xmin:xmax]
 
-        hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-
-    
  
-
- 
-### Now convolute with circular disc
-
-## 
-### threshold and binary AND
-##ret,thresh = cv2.threshold(dst,50,255,0)
-##thresh = cv2.merge((thresh,thresh,thresh))
-##res = cv2.bitwise_and(target,thresh)
-## 
-##res = np.vstack((target,thresh,res))
-##cv2.imwrite('res.jpg',res)
-        
-            
     def run(self):
         """ Runs a loop, repeatedly getting video/images and displaying them and any selected region of interest """
         

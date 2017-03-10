@@ -6,8 +6,15 @@ Created on Sun Jan 29 20:44:27 2017
 """
 
 import cv2
+import sys
 
-cap = cv2.VideoCapture("../videos/incredible_machine.avi")
+args = sys.argv
+if len(args) > 1:
+    source = args[1]
+else:
+    source = 0
+
+cap = cv2.VideoCapture(source)
 while(True):
 
     _, frame = cap.read()
