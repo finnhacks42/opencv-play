@@ -9,15 +9,14 @@ import cv2
 import sys
 import cvutil as u
 
+
 cap = u.source_video(sys.argv)
 
-while(True):
+count = 0
+while(count < 10):
+    count +=1
     _, frame = cap.read()
-
     cv2.imshow('frame',frame)
-    
-    k = cv2.waitKey(5) & 0xFF
-    if k == ord('q'):
-        break
+    cv2.imwrite("../videos/frames/frame_{0}.png".format(count),frame)
     
 cv2.destroyAllWindows()

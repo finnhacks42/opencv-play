@@ -8,6 +8,19 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
+def source_video(args):
+    if len(args) > 1:
+        source = args[1]
+        try:
+            source = int(source)
+        except ValueError:
+            pass
+    else:
+        source = 0
+    return cv2.VideoCapture(source)
+    
+
+
 def plot_histogram(ax,img,channels,title,legend_loc = "upper left"):
     """
     ax: the axis on which you want to plot the histogram
